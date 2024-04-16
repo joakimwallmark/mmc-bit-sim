@@ -1,0 +1,114 @@
+# ----------------------------
+# R and renv Specific Exclusions
+# ----------------------------
+
+# R history files
+.Rhistory
+.Rapp.history
+
+# R data files
+.RData
+
+# R workspace files
+.Ruserdata
+
+# RStudio project files
+.Rproj.user/
+
+# renv directories to exclude
+renv/library/
+renv/cache/
+renv/staging/
+
+# ----------------------------
+# Python Specific Exclusions
+# ----------------------------
+
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS specific files
+.DS_Store
+
+# Other Python-specific temporary files
+*.swp
+*.swo
+
+# ----------------------------
+# Common Exclusions
+# ----------------------------
+
+# Temporary files
+*.tmp
+*.log
+
+# OS-specific files
+Thumbs.db
+
+# Editor-specific swap files
+*.swp
+*.swo
