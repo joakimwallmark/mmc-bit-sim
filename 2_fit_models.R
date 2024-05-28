@@ -98,7 +98,6 @@ run_simulation <- function(params) {
 start_time_overall <- Sys.time()
 cl <- makeCluster(detectCores())
 clusterExport(cl, c(
-  "cmnom",
   "calculate_residuals",
   "correct_cat",
   "full_data",

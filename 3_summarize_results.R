@@ -23,25 +23,30 @@ combined_res <- combined_res |> mutate(z_estimation_method = ifelse(is.na(z_esti
 # Results table -----------------------------------------------------------
 table_df <- combined_res |>
   mutate(z_estimation_method = ifelse(is.na(z_estimation_method), "ML", z_estimation_method)) |>
-  filter(test_log_likelihood > -1.1) |>
+  filter(test_log_likelihood > -0.98) |>
   mutate(model = case_when(
     model == "NR" ~ "NR AE",
     model == "MMC" ~ "MMC AE",
     model == "mirt nominal" ~ "NR MML",
   )) |>
   select(iteration, n, items, model, test_log_likelihood, test_residuals, z_estimation_method) |>
+  group_by(n, items, model, z_estimation_method) |>
+  summarise(
+    mean_test_log_likelihood = mean(test_log_likelihood),
+    mean_test_residuals = mean(test_residuals),
+    se_test_log_likelihood = sd(test_log_likelihood),
+    se_test_residuals = sd(test_residuals)
+  ) |>
   pivot_wider(
-    names_from = z_estimation_method, values_from = c(test_log_likelihood, test_residuals),
+    names_from = z_estimation_method, values_from = c(mean_test_log_likelihood, mean_test_residuals, se_test_log_likelihood, se_test_residuals),
     names_sep = "_", # Separator between 'c' values and column names
     names_glue = "{z_estimation_method}_{.value}"
   ) |>
-  group_by(n, items, model) |>
-  summarise(across(starts_with("ML_") | starts_with("NN_"), list(mean = mean, sd = sd), .names = "{.fn}_{.col}")) |>
   mutate(
-    `log-likelihood (ML)` = sprintf("%.4f (%.4f)", mean_ML_test_log_likelihood, sd_ML_test_log_likelihood),
-    `log-likelihood (NN)` = sprintf("%.4f (%.4f)", mean_NN_test_log_likelihood, sd_NN_test_log_likelihood),
-    `residuals (ML)` = sprintf("%.4f (%.4f)", mean_ML_test_residuals, sd_ML_test_residuals),
-    `residuals (NN)` = sprintf("%.4f (%.4f)", mean_NN_test_residuals, sd_NN_test_residuals)
+    `log-likelihood (ML)` = sprintf("%.4f (%.4f)", ML_mean_test_log_likelihood, ML_se_test_log_likelihood),
+    `log-likelihood (NN)` = sprintf("%.4f (%.4f)", NN_mean_test_log_likelihood, NN_se_test_log_likelihood),
+    `residuals (ML)` = sprintf("%.4f (%.4f)", ML_mean_test_residuals, ML_se_test_residuals),
+    `residuals (NN)` = sprintf("%.4f (%.4f)", NN_mean_test_residuals, NN_se_test_residuals)
   ) |>
   select(n, items, model, `log-likelihood (ML)`, `log-likelihood (NN)`, `residuals (ML)`, `residuals (NN)`) |>
   mutate(across(everything(), ~ ifelse(is.na(.x) | .x == "NA (NA)", "-", .x))) |>
@@ -56,7 +61,7 @@ latex_table
 
 
 # Figure ------------------------------------------------------------------
-table_df <- combined_res |>
+figure_df <- combined_res |>
   filter(z_estimation_method == "ML", test_log_likelihood > -0.98) |>
   mutate(
     model = recode(
@@ -81,7 +86,7 @@ table_df <- combined_res |>
   ungroup()
 
 colors <- c("black", "gray40", "gray60")
-interaction_plot <- table_df |>
+interaction_plot <- figure_df |>
   ggplot(aes(x = n, y = mean_test_log_likelihood, color = model)) +
   geom_point() +
   geom_line(aes(group = model), linetype = "dashed") +
@@ -99,7 +104,7 @@ interaction_plot <- table_df |>
   scale_color_manual(values = colors) +
   facet_wrap(~items)
 
-res_interaction_plot <- table_df |>
+res_interaction_plot <- figure_df |>
   ggplot(aes(x = n, y = mean_test_residuals, color = model)) +
   geom_point() +
   geom_line(aes(group = model), linetype = "dashed") +
@@ -115,6 +120,7 @@ res_interaction_plot <- table_df |>
   labs(x = "Sample size", y = "Average residual") +
   theme(legend.position = "bottom") +
   scale_color_manual(values = colors) +
+  guides(color = guide_legend(title = NULL)) +
   facet_wrap(~items)
 
 interaction_plot <- interaction_plot + theme(legend.position = "none")

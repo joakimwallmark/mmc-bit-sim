@@ -11,7 +11,7 @@ import torch.multiprocessing as mp
 import pandas as pd
 from pyarrow import feather
 from irtorch import IRT
-from irtorch.models import MonotoneNN, Parametric
+from irtorch.models import MonotoneNN, NominalResponse
 from sim_helper_functions import filter_missing_categories
 
 def parse_args():
@@ -75,10 +75,9 @@ def run_simulation(arguments):
     torch.manual_seed(i + 135) # Same seed depending on iteration
     try:
         if "NR" in model_name:
-            model_spec = Parametric(
+            model_spec = NominalResponse(
                 latent_variables=1,
                 item_categories=n_cats_task,
-                model = "NR",
                 model_missing=MODEL_MISSING,
                 mc_correct=correct_task,
                 reference_category=False
